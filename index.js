@@ -37,8 +37,8 @@ function operation() {
       } else if (action === 'Sair') {
         console.log(chalk.bgBlue.black('Obrigado por usar o Accounts!'))
         process.exit()
-      }
-    })
+      } 
+    }).catch((err) => console.log(err))
 }
 
 //* create an account 
@@ -62,21 +62,21 @@ function buildAccount() {
 
       const accountName = answer['accountName']
 
-    // verificar se existe o accounts e não existir vai criar
-      if (!fs.existsSync('accounts')) {
-        fs.mkdirSync('accounts')
+
+      if (!fs.existsSync('accounts')) { // verificar se existe a pasta accounts
+        fs.mkdirSync('accounts') // e se não existir vai criar
       }
 
     // validação para saber se a conta já existe
       if (fs.existsSync(`accounts/${accountName}.json`)) {
-        console.log(
-          chalk.bgRed.black('Esta conta já existe, escolha outro nome!'),)
+        console.log(chalk.bgRed.black('Esta conta já existe, escolha outro nome!'),)
         buildAccount(accountName)
       }
 
+      // escrever no arquivo JSON o balance
       fs.writeFileSync(
         `accounts/${accountName}.json`,
-        '{"balance":0}',
+        '{"balance":0}', // adicionar o balance
         function (err) {
           console.log(err)
         },
@@ -100,7 +100,7 @@ function deposit() {
 
         // verificar se a conta existe
       if (!checkAccount(accountName)) {
-        return deposit() // volta para pedir novamente o nome
+        return deposit() // volta para deposito para pedir novamente o nome
       }
 
       inquirer.prompt([
@@ -131,24 +131,24 @@ function checkAccount(accountName) {
 function getAccount(accountName) {
   const accountJSON = fs.readFileSync(`accounts/${accountName}.json`, {
     encoding: 'utf8',
-    flag: 'r',
+    flag: 'r', // flag r de read
   })
 
-  return JSON.parse(accountJSON)
+  return JSON.parse(accountJSON) // transformar em um objeto
 }
 
 //* função de adicionar o deposito
 function addAmount(accountName, amount) {
   const accountData = getAccount(accountName)
 
-  if (!amount) { 
+  if (!amount) { // se não colocou nenhum valor (ou seja, deu enter sem colocar nenhum valor)
     console.log(chalk.bgRed.black('Ocorreu um erro, tente novamente mais tarde!'),)
     return deposit()
   }
 
   accountData.balance = parseFloat(amount) + parseFloat(accountData.balance) // parseFloat -> converter em número
 
-  fs.writeFileSync( // se não tiver valor, aparece esse erro
+  fs.writeFileSync( // escrever no arquivo o deposito
     `accounts/${accountName}.json`, // salvar os dados em um arquivo
     JSON.stringify(accountData), // transformar em string
     function (err) {
@@ -170,15 +170,13 @@ function getAccountBalance() {
     .then((answer) => {
       const accountName = answer['accountName']
 
-        // verificar se a conta existe
+        // verificar se a conta não existir eu volto para o getAccountBalance
       if (!checkAccount(accountName)) {
         return getAccountBalance()
       }
 
       const accountData = getAccount(accountName)
-
-      console.log(
-        chalk.bgBlue.black(`Olá, o saldo da sua conta é de R$${accountData.balance}`,),)
+      console.log(chalk.bgBlue.black(`Olá, o saldo da sua conta é de R$${accountData.balance}`,),)
       operation()
     })
 }
@@ -194,7 +192,7 @@ function withdraw() {
     .then((answer) => {
       const accountName = answer['accountName']
 
-       // verificar se a conta existe
+       // verificar se a conta não existir eu volto para o withdraw
       if (!checkAccount(accountName)) {
         return withdraw()
       }
@@ -218,7 +216,7 @@ function withdraw() {
 function removeAmount(accountName, amount) {
   const accountData = getAccount(accountName) // pegar a conta para saber quanto dinheiro tem
 
-  if (!amount) {  // verificar se o valor veio na hora de depositar
+  if (!amount) {  // se não tiver um valor, aparece esse erro
     console.log(chalk.bgRed.black('Ocorreu um erro, tente novamente mais tarde!'),)
     return withdraw()
   }
@@ -228,9 +226,9 @@ function removeAmount(accountName, amount) {
     return withdraw()
   }
 
-  accountData.balance = parseFloat(accountData.balance) - parseFloat(amount) // salvar na conta o valor reduzido
+  accountData.balance = parseFloat(accountData.balance) - parseFloat(amount)
 
-  fs.writeFileSync( // salvar os dados em um arquivo
+  fs.writeFileSync( // salvar os dados do valor reduzido em um arquivo
     `accounts/${accountName}.json`,
     JSON.stringify(accountData), // transformar em string
     function (err) {
