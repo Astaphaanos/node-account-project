@@ -1,3 +1,0 @@
-- npm init -y
-- npm install chalk inquirer
-- "start": "node index.js" (no package.json)
